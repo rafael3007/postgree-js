@@ -1,63 +1,32 @@
-import pessoas from "../models/Pessoa.js";
+import Profiles from "../models/profiles.js";
 
-class PessoaController {
+class MessageController {
 
-    static listarPessoas =  (req,res) => {
-        pessoas.find((err,pessoas) => {
-            res.status(200).json(pessoas)
-        })
+    static async listarnumeros(req, res) {
+        try {
+            const dados = await Profiles.getAllProfiles();
+            res.status(400).send({message: JSON.stringify(dados)});
+        } catch (error) {
+            console.log(error);
+            res.status(500).send({message: "Internal server error"});
+        }
     }
 
-    static listarPessoaPorId = (req,res) => {
-        const id = req.params.id
-
-        pessoas.findById(id,(err,pessoas)=>{
-            if(err){
-                res.status(400).send({message: `${err} - ID não localizado!`})
-            }else{
-                res.status(200).send(pessoas)  
+    static async verificarProfiles(req, res) {
+        try {
+            const dados = await Profiles.getAllProfiles();
+            const number = dados.find(profile => profile.numero === req.body.number);
+            if (number) {
+                res.status(200).send({message: number});
+            } else {
+                res.status(404).send({message: "This number does not exist"});
             }
-        })
-    }
-
-    static cadastrarPessoa = (req,res) => {
-        let pessoa = new pessoas(req.body);
-
-        pessoa.save((err)=>{
-            //if error
-            if(err){
-                res.status(500).send({message: `${err.message} - falha ao cadastrar livro.`})
-            }else{
-                res.status(201).send(pessoa.toJSON())
-            }
-        })
-    }
-
-    static atualizarPessoa = (req,res) =>{
-        const id = req.params.id
-        pessoas.findByIdAndUpdate(id,{$set: req.body}, (err) => {
-            if(!err){
-                res.status(200).send({message: 'Item atualizado com sucesso!'})
-            }else{
-                res.status(500).send({message: `${err.message} - Falha ao atualizar o item!`})
-            }
-        })
-
-    }
-
-    static removerPessoa = (req,res) =>{
-
-        const id = req.params.id
-
-        pessoas.findByIdAndDelete(id,(err) =>{
-            if(!err){
-                res.status(200).send({message: 'Item removido com sucesso!'})
-            }else {
-                res.status(500).send({message: `${err} - Falha ao remover item!`})
-            }
-        })
+        } catch (error) {
+            console.log(error);
+            res.status(500).send({message: "Internal server error"});
+        }
     }
 
 }
 
-export default PessoaController
+export default MessageController;

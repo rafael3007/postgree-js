@@ -1,32 +1,37 @@
 import { db } from "../database/connection.js"
 
-const formataData = () => {
-    // cria um novo objeto Date
-    const dataHora = new Date();
 
-    // obtém a data atual
-    const data = dataHora.toLocaleDateString('pt-BR', {
-        day: '2-digit',
-        month: '2-digit',
-        year: 'numeric'
-    });
+export default class Authorization {
+    constructor() { }
 
-    // obtém a hora atual
-    const hora = dataHora.toLocaleTimeString('pt-BR', {
-        hour: '2-digit',
-        minute: '2-digit',
-        second: '2-digit'
-    });
+    static async authenticate(username, password) {
+        try {
+            const user = await db.oneOrNone('SELECT * FROM users WHERE username = $1 AND password = $2', [username, password]);
 
-    // une a data e hora formatadas
-    const dataHoraFormatada = `${data}-${hora}`;
+            if (user) {
+                const token = jwt.sign({ sub: user.id }, 'your_secret_key', { expiresIn: '1h' });
 
-    // exibe a data e hora formatadas
-    return dataHoraFormatada;
-}
+                await db.none('UPDATE users SET token = $1 WHERE id = $2', [token, user.id]);
 
-export default class Profiles {
-    constructor() {}
+                return {
+                    status: 200,
+                    success: token
+                }
+            } else {
+                return {
+                    status: 404,
+                    error: 'Invalid credentials'
+                }
+
+            }
+        } catch (error) {
+            console.error(error);
+            return {
+                status: 501,
+                error: 'Internal server error'
+            }
+        }
+    }
 
     static async createProfile(nome, number) {
         const result = await db.insert({ nome: nome, numero: number }).into('profiles');
