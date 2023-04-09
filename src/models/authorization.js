@@ -1,4 +1,5 @@
 import { db } from "../database/connection.js"
+import jwt from 'jsonwebtoken'
 
 
 export default class Authorization {
@@ -12,6 +13,8 @@ export default class Authorization {
                 const token = jwt.sign({ sub: user.id }, 'your_secret_key', { expiresIn: '1h' });
 
                 await db.none('UPDATE users SET token = $1 WHERE id = $2', [token, user.id]);
+
+                console.log('ok')
 
                 return {
                     status: 200,
@@ -31,6 +34,16 @@ export default class Authorization {
                 error: 'Internal server error'
             }
         }
+    }
+
+    static async findByToken(token) {
+
+        const result = await db.query(`SELECT * FROM users WHERE token = '${token}'`);
+        console.log(result)
+        if (result.length === 0) {
+            return null;
+        }
+        return result[0];
     }
 
     static async createProfile(nome, number) {
