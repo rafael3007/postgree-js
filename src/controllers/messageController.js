@@ -30,7 +30,89 @@ class MessageController {
     static async receivedMessage(req, res) {
         const { body, from } = req.body
 
-        if (body[0] === "#" && /^\d+$/.test(body.substring(1))) {
+        if (body[0] === "#") {
+            //mensagem gatilho
+
+            //verifica se o usuario existe
+            const profile = await Profiles.getProfileByNumber(from)
+
+
+            if (profile == []) {
+                //se não encontrado insere no banco de dados
+                await Profiles.createProfile("Sem nome", from)
+
+            }
+
+            //retorna o estágio do usuario
+            const { stage } = await Profiles.getProfileByNumber(from)
+
+            //verifica se o comando só possui núnmeros
+            if (/^\d+$/.test(body.substring(1))) {
+                //função para buscar obras
+            } else {
+                //verifica se o stage > 0
+                if (stage > 0) {
+
+                    //ajustar para ao invés de enviar as mensagens enviar também um código
+                    //para saber se a mensagem é uma lista, ou umna mensagem simples
+                    //ou uma localização
+                    switch (stage) {
+                        case 1:
+                            //verifica a opção selecionada
+                            switch (body) {
+                                case '1':
+                                    res.status(201).send({
+                                        message: "funcionalidades de obras"
+                                    })
+                                    break;
+                                case '2':
+                                    res.status(201).send({
+                                        message: [
+                                            "1- Programação das Turmas por data",
+                                            "2- Programação das Turmas Hoje",
+                                            "3- Programação por Supervisor",
+                                            "4- Enviar programação para Supervisores",
+                                            "5- Sair"
+                                        ]
+                                    })
+                                    break;
+                                case '3':
+                                    res.status(201).send({
+                                        message: [
+                                            "1- Folgas das turmas",
+                                            "2- Sair"
+                                        ]
+                                    })
+                                    break;
+                                default:
+                                    res.status(404).send({
+                                        message: "Desculpe, digite uma opção válida!"
+                                    })
+                                    break;
+                            }
+                            break;
+                        case 2:
+                    }
+
+                } else {
+                    //stage == 0 -> envia o Menu de opções
+                    res.status(201).send({
+                        message: {
+                            "Menu": [
+                                '1- Obras',
+                                '2- Programação',
+                                '3- Folgas',
+                            ]
+                        }
+                    })
+                }
+
+            }
+
+
+        }
+
+        if (body[0] === "#" && !(/^\d+$/.test(body.substring(1)))) {
             const profile = await Profiles.getProfileByNumber(from)
 
             if (profile == []) {
@@ -47,10 +129,20 @@ class MessageController {
                     await Profiles.updateProfile(from, 1)
 
                     res.status(201).send({
-                        message: "MENU"
+                        message: {
+                            "Menu": [
+                                '1- Obras',
+                                '2- Programação',
+                                '3- Folgas',
+
+                            ]
+                        }
                     })
                     break;
                 case 1:
+
+
+
                     //atualização para o próximo estágio
                     await Profiles.updateProfile(from, 2)
                     //outra função
@@ -74,9 +166,9 @@ class MessageController {
             }
 
 
-        }else{
+        } else {
             res.status(500).send({
-                message: "Mensagem Inválida!"
+                message: "informações das obras"
             })
         }
     }
