@@ -18,7 +18,7 @@ export default class Authorization {
 
                 return {
                     status: 200,
-                    success: token
+                    token: token
                 }
             } else {
                 return {
@@ -39,7 +39,6 @@ export default class Authorization {
     static async findByToken(token) {
 
         const result = await db.query(`SELECT * FROM users WHERE token = '${token}'`);
-        console.log(result)
         if (result.length === 0) {
             return null;
         }

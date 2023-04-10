@@ -26,26 +26,36 @@ const formataData = () => {
 }
 
 export default class Profiles {
-    constructor() {}
+    constructor() { }
 
     static async createProfile(nome, number) {
-        const result = await db.insert({ nome: nome, numero: number }).into('profiles');
-        return result;
+        try {
+            const query = 'INSERT INTO profiles (nome, numero) VALUES ($1, $2)';
+            await db.none(query, [nome, number]);
+        } catch (error) {
+            console.error(error);
+        }
     }
 
     static async getProfileByNumber(number) {
         try {
             const result = await db.query(`select * from profiles where numero = '${number}'`);
-            return result;
+            return result[0];
         } catch (error) {
             console.log(error);
             throw new Error("Internal server error");
         }
     }
 
+
     static async updateProfile(number, stage) {
-        const result = await db.update('profiles', { stage: stage }).where({ numero: number });
-        return result;
+        try {
+            const result = await db.none('UPDATE profiles SET stage = $1 WHERE numero = $2', [stage, number]);
+            return result;
+        } catch (error) {
+            console.log('Error updating profile:', error);
+            throw error;
+        }
     }
 
     static async deleteProfile(number) {

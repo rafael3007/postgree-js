@@ -3,17 +3,13 @@ import Authorization from "../models/authorization.js";
 
 class AuthorizationController {
 
-    static async generateAuth (req, res){
+    static async generateAuth(req, res) {
 
         const [username, password] = Buffer.from(req.headers.authorization.split(' ')[1], 'base64').toString().split(':');
 
-        console.log(username, password)
-
         const authorization = await Authorization.authenticate(username, password)
 
-        console.log(authorization)
-
-        switch (authorization.status){
+        switch (authorization.status) {
             case 200:
                 //sucesso
                 res.status(200).send({
@@ -52,7 +48,7 @@ class AuthorizationController {
         }
 
         try {
-            
+
             // verifica se o token é válido
             const decodedToken = jwt.verify(token, process.env.JWT_SECRET);
 

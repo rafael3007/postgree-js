@@ -7,9 +7,8 @@ import { authenticateToken } from "../middlewares/authenticateToken.js";
 const router = express.Router();
 
 router
-    .post('/auth',authenticateToken, AuthorizationController.generateAuth)
+    .post('/auth',AuthorizationController.generateAuth)
     .get('/test', authenticateToken, (req, res) => {
-        console.log('final')
         res.status(200).send({ message: 'Authenticated' });
     });
 export default router;
