@@ -7,6 +7,7 @@ export default class Authorization {
 
     static async authenticate(username, password) {
         try {
+            
             const user = await db.oneOrNone('SELECT * FROM users WHERE username = $1 AND password = $2', [username, password]);
 
             if (user) {

@@ -40,6 +40,7 @@ export default class Profiles {
     static async getProfileByNumber(number) {
         try {
             const result = await db.query(`select * from profiles where numero = '${number}'`);
+            console.log(result[0])
             return result[0];
         } catch (error) {
             console.log(error);
@@ -59,7 +60,7 @@ export default class Profiles {
     }
 
     static async deleteProfile(number) {
-        const result = await db.delete().from('profiles').where({ numero: number });
+        const result = await db.none('DELETE FROM profiles WHERE numero = $1', number);
         return result;
     }
 

@@ -9,6 +9,8 @@ const router = express.Router();
 router
     .get('/message',authenticateToken,MessageController.verificarProfiles)
     .post("/bot", authenticateToken,MessageController.receivedMessage)
+    .post("/message", authenticateToken,MessageController.processMessage)
+    
     
     
 
